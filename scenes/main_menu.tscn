@@ -1,0 +1,104 @@
+[gd_scene load_steps=5 format=3 uid="uid://mainmenu"]
+
+[ext_resource type="Script" path="res://scripts/main_menu.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://c1ball" path="res://scenes/ball.tscn" id="2_ball"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_title"]
+font_size = 72
+font_color = Color(0.15, 0.15, 0.15, 1)
+outline_size = 0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
+bg_color = Color(0.15, 0.15, 0.15, 1)
+corner_radius_top_left = 40
+corner_radius_top_right = 40
+corner_radius_bottom_right = 40
+corner_radius_bottom_left = 40
+content_margin_left = 40.0
+content_margin_top = 20.0
+content_margin_right = 40.0
+content_margin_bottom = 20.0
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.98, 0.98, 0.98, 1)
+
+[node name="PolygonContainer" type="Node2D" parent="."]
+position = Vector2(360, 640)
+
+[node name="Shadow" type="Polygon2D" parent="PolygonContainer"]
+position = Vector2(10, 15)
+color = Color(0, 0, 0, 0.03)
+polygon = PackedVector2Array(300, 0, 150, 260, -150, 260, -300, 0, -150, -260, 150, -260)
+
+[node name="HexagonBorder" type="Line2D" parent="PolygonContainer"]
+points = PackedVector2Array(300, 0, 150, 260, -150, 260, -300, 0, -150, -260, 150, -260, 300, 0)
+width = 8.0
+default_color = Color(0.2, 0.2, 0.2, 1)
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
+
+[node name="Boundary" type="StaticBody2D" parent="PolygonContainer"]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="PolygonContainer/Boundary"]
+build_mode = 1
+polygon = PackedVector2Array(300, 0, 150, 260, -150, 260, -300, 0, -150, -260, 150, -260)
+
+[node name="Ball1" parent="PolygonContainer" instance=ExtResource("2_ball")]
+position = Vector2(-50, -20)
+ball_color = Color(1, 0.4, 0.4, 1)
+
+[node name="Ball2" parent="PolygonContainer" instance=ExtResource("2_ball")]
+position = Vector2(60, 40)
+ball_color = Color(0.4, 0.8, 0.4, 1)
+
+[node name="Ball3" parent="PolygonContainer" instance=ExtResource("2_ball")]
+position = Vector2(-20, 80)
+ball_color = Color(0.4, 0.6, 1, 1)
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="TitleLabel" type="Label" parent="UI"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -151.5
+offset_top = 150.0
+offset_right = 151.5
+offset_bottom = 249.0
+grow_horizontal = 2
+text = "CUTLINE"
+label_settings = SubResource("LabelSettings_title")
+horizontal_alignment = 1
+
+[node name="PlayButton" type="Button" parent="UI"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -100.0
+offset_top = -250.0
+offset_right = 100.0
+offset_bottom = -170.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn")
+text = "START GAME"
