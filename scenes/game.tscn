@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scripts/game.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://be87n5k6m4l3p" path="res://scenes/game_shape.tscn" id="2_shape_scene"]
 [ext_resource type="Script" path="res://scripts/hud.gd" id="hud_script"]
+[ext_resource type="PackedScene" uid="uid://be87n5k6m4l3r" path="res://scenes/fail_popup.tscn" id="fail_popup_scene"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_score"]
 font_size = 48
@@ -133,3 +134,13 @@ grow_vertical = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 text = "TARGET: 50%"
 horizontal_alignment = 2
+
+[node name="FailPopup" parent="CanvasLayer" instance=ExtResource("fail_popup_scene")]
+layout_mode = 1
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="."]
+autoplay = true
+
+[node name="SFXSlice" type="AudioStreamPlayer" parent="."]
+
+[node name="SFXFail" type="AudioStreamPlayer" parent="."]

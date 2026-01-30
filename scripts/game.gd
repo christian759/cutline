@@ -7,8 +7,13 @@ extends Node2D
 @onready var shape_container = $ShapeContainer
 @onready var cut_line_visual = $CanvasLayer/CutLineVisual
 @onready var hud = $CanvasLayer/HUD
+@onready var fail_popup = $CanvasLayer/FailPopup
 @onready var score_label = $CanvasLayer/HUD/ScoreLabel
 @onready var level_label = $CanvasLayer/HUD/LevelLabel
+
+@onready var music_player = $MusicPlayer
+@onready var sfx_slice = $SFXSlice
+@onready var sfx_fail = $SFXFail
 
 var current_shape: Node2D = null
 var is_dragging := false
@@ -105,6 +110,7 @@ func perform_cut(start: Vector2, end: Vector2):
 	var result = current_shape.apply_slice(start, end)
 	
 	if result == current_shape.CutResult.SUCCESS:
+		sfx_slice.play()
 		spawn_cut_fx(start, end)
 		check_progress()
 	elif result == current_shape.CutResult.HIT_BALL:
@@ -187,8 +193,7 @@ func complete_level():
 
 func fail_game(reason: String):
 	game_over = true
-	level_label.text = reason
-	level_label.modulate = Color.RED
+	sfx_fail.play()
 	
 	shake_screen(15.0)
 	
@@ -197,8 +202,8 @@ func fail_game(reason: String):
 	tween.tween_property(current_shape, "scale", Vector2.ZERO, 0.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
 	tween.parallel().tween_property(current_shape, "modulate", Color.RED, 0.4)
 	
-	await get_tree().create_timer(1.5).timeout
-	get_tree().change_scene_to_file("res://scenes/home_screen.tscn")
+	await get_tree().create_timer(1.0).timeout
+	fail_popup.setup(reason)
 
 func shake_screen(intensity: float):
 	var tween = create_tween()
