@@ -1,0 +1,87 @@
+[gd_scene format=3 uid="uid://dd82qyf6j3j4w"]
+
+[ext_resource type="Script" path="res://scripts/home_screen.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/shape_spawner.gd" id="2_spawner"]
+[ext_resource type="PackedScene" uid="uid://c8m8n7k8x5u6b" path="res://scenes/shape.tscn" id="3_shape_scene"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_title"]
+font_size = 96
+font_color = Color(0, 0, 0, 1)
+outline_size = 4
+outline_color = Color(0, 0, 0, 0.1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_subtitle"]
+font_size = 24
+font_color = Color(0, 0, 0, 0.5)
+
+[node name="HomeScreen" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="ShapeSpawner" type="Node2D" parent="."]
+script = ExtResource("2_spawner")
+shape_scene = ExtResource("3_shape_scene")
+shape_count = 25
+
+[node name="Shapes" type="Node2D" parent="."]
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -200.0
+offset_right = 200.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 40
+alignment = 1
+
+[node name="LogoContainer" type="VBoxContainer" parent="UI/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="TitleLabel" type="Label" parent="UI/VBoxContainer/LogoContainer"]
+layout_mode = 2
+text = "CUTLINE"
+label_settings = SubResource("LabelSettings_title")
+horizontal_alignment = 1
+
+[node name="SubtitleLabel" type="Label" parent="UI/VBoxContainer/LogoContainer"]
+layout_mode = 2
+text = "Slice with precision."
+label_settings = SubResource("LabelSettings_subtitle")
+horizontal_alignment = 1
+
+[node name="ControlSpacing" type="Control" parent="UI/VBoxContainer"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+
+[node name="PlayButton" type="Button" parent="UI/VBoxContainer"]
+custom_minimum_size = Vector2(240, 70)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0.3, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 36
+text = "PLAY"
+flat = true
+pivot_offset = Vector2(120, 35)
+
+[node name="SettingsButton" type="Button" parent="UI/VBoxContainer"]
+custom_minimum_size = Vector2(240, 60)
+layout_mode = 2
+size_flags_horizontal = 4
+modulate = Color(1, 1, 1, 0.6)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 24
+text = "SETTINGS"
+flat = true
+pivot_offset = Vector2(120, 30)

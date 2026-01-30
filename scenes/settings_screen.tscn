@@ -1,0 +1,104 @@
+[gd_scene format=3 uid="uid://b8y7n5k6m4l3p"]
+
+[ext_resource type="Script" path="res://scripts/settings_screen.gd" id="1_script"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_header"]
+font_size = 64
+font_color = Color(0, 0, 0, 1)
+
+[node name="SettingsScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1, 1, 1, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 60
+theme_override_constants/margin_top = 100
+theme_override_constants/margin_right = 60
+theme_override_constants/margin_bottom = 100
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 60
+
+[node name="Header" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "SETTINGS"
+label_settings = SubResource("LabelSettings_header")
+horizontal_alignment = 1
+
+[node name="SettingsList" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 40
+
+[node name="SoundRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsList"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsList/SoundRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 32
+text = "SOUND"
+
+[node name="CheckButton" type="CheckButton" parent="MarginContainer/VBoxContainer/SettingsList/SoundRow"]
+layout_mode = 2
+button_pressed = true
+
+[node name="HapticsRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsList"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsList/HapticsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 32
+text = "HAPTICS"
+
+[node name="CheckButton" type="CheckButton" parent="MarginContainer/VBoxContainer/SettingsList/HapticsRow"]
+layout_mode = 2
+button_pressed = true
+
+[node name="ThemeRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsList"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsList/ThemeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 32
+text = "DARK MODE"
+
+[node name="CheckButton" type="CheckButton" parent="MarginContainer/VBoxContainer/SettingsList/ThemeRow"]
+layout_mode = 2
+
+[node name="Spacer" type="Control" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="BackButton" type="Button" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 32
+text = "BACK"
+flat = true
