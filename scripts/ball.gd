@@ -33,8 +33,5 @@ func _process(delta):
 
 func update_polygon(poly: PackedVector2Array):
 	parent_polygon = poly
-	# If we somehow end up outside after a cut, snap to center or nearest point
 	if not GeometryUtils.is_point_in_polygon(position, parent_polygon):
-		# Fallback: move toward the centroid of the polygon
-		# Simplified: just reverse and move back
 		velocity = - velocity

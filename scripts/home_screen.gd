@@ -58,7 +58,7 @@ func _set_slow_mo(enabled: bool):
 func _on_play_pressed():
 	# Transition to game
 	print("Play pressed!")
-	get_tree().change_scene_to_file("res://scenes/game.tscn")
+	get_tree().change_scene_to_file("res://scenes/level_selection.tscn")
 
 func _on_settings_pressed():
 	get_tree().change_scene_to_file("res://scenes/settings_screen.tscn")

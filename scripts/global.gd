@@ -1,5 +1,4 @@
 extends Node
-class_name Global
 
 var unlocked_levels := 1
 var high_score := 0
