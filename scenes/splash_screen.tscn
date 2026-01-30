@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://be87n5k6m4l3t"]
 
 [ext_resource type="Script" path="res://scripts/splash_screen.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://be87n5k6m4l3u" path="res://assets/logo.png" id="2_logo"]
+[ext_resource type="Texture2D" uid="uid://be87n5k6m4l3u" path="res://assets/logo.svg" id="2_logo"]
 
 [node name="SplashScreen" type="Control"]
 layout_mode = 3
