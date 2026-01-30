@@ -1,8 +1,9 @@
 extends Node2D
 
-const GeometryUtils = preload("res://scripts/geometry_utils.gd")
+# No need for explicit preload if class_name is used
 
 @export var shape_scene: PackedScene
+@export var ball_scene: PackedScene
 @onready var shape_container = $ShapeContainer
 @onready var cut_line_visual = $CanvasLayer/CutLineVisual
 @onready var progress_bar = $CanvasLayer/HUD/ProgressBar
@@ -58,6 +59,14 @@ func start_level():
 	
 	update_hud()
 	level_label.text = "LEVEL " + str(current_level)
+	level_label.modulate = Color.WHITE
+	
+	# Spawn Balls (§4 & §7)
+	if current_level >= 6:
+		var ball_count = 1 + int((current_level - 1) / 5.0)
+		for i in range(ball_count):
+			var ball_vel = Vector2(randf_range(-1, 1), randf_range(-1, 1)).normalized() * (80.0 + current_level * 10)
+			current_shape.add_ball(ball_scene, ball_vel, 12.0)
 
 func generate_random_polygon(sides: int, radius: float) -> PackedVector2Array:
 	var points = PackedVector2Array()
@@ -71,30 +80,34 @@ func generate_random_polygon(sides: int, radius: float) -> PackedVector2Array:
 func _input(event):
 	if game_over: return
 	
-	if event is InputEventMouseButton:
-		if event.button_index == MOUSE_BUTTON_LEFT:
-			if event.pressed:
-				is_dragging = true
-				drag_start = event.position
-				cut_line_visual.points = PackedVector2Array([drag_start, drag_start])
-				cut_line_visual.visible = true
-			else:
-				if is_dragging:
-					is_dragging = false
-					cut_line_visual.visible = false
-					perform_cut(drag_start, event.position)
+	# Mobile-Compatible Slicing (§2)
+	if event is InputEventScreenTouch or (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT):
+		if event.pressed:
+			is_dragging = true
+			drag_start = event.position
+			cut_line_visual.points = PackedVector2Array([drag_start, drag_start])
+			cut_line_visual.visible = true
+		else:
+			if is_dragging:
+				is_dragging = false
+				cut_line_visual.visible = false
+				perform_cut(drag_start, event.position)
 					
-	elif event is InputEventMouseMotion and is_dragging:
+	elif (event is InputEventScreenDrag or event is InputEventMouseMotion) and is_dragging:
 		cut_line_visual.points = PackedVector2Array([drag_start, event.position])
 
 func perform_cut(start: Vector2, end: Vector2):
-	if start.distance_to(end) < 40: return
+	if start.distance_to(end) < 60: return # Minimum swipe length (§2)
 	
-	if current_shape and current_shape.apply_slice(start, end):
+	var result = current_shape.apply_slice(start, end)
+	
+	if result == current_shape.CutResult.SUCCESS:
 		spawn_cut_fx(start, end)
 		check_progress()
+	elif result == current_shape.CutResult.HIT_BALL:
+		fail_game("HIT BALL!")
 	else:
-		shake_screen(5.0) # Feedback for missing the shape
+		shake_screen(5.0)
 
 func check_progress():
 	var current_area = current_shape.get_area()
@@ -111,17 +124,37 @@ func update_hud():
 	var current_area = current_shape.get_area()
 	var current_ratio = current_area / initial_area
 	
-	# Current Progress
-	var tween = create_tween()
-	tween.tween_property(progress_bar, "value", current_ratio * 100.0, 0.2).set_trans(Tween.TRANS_CUBIC)
-	
+	# HUD visual intensity (§1)
+	var diff = abs(current_ratio - target_ratio)
+	if diff < 0.05:
+		progress_bar.modulate = Color.ORANGE
+	elif diff < 0.02:
+		progress_bar.modulate = Color.RED
+	else:
+		progress_bar.modulate = Color.WHITE
+		
 	# Target Marker position on bar
 	target_marker.anchor_left = target_ratio
 	target_marker.anchor_right = target_ratio
 	
+func calculate_stars(precision: float) -> int:
+	if precision <= 0.03: return 3
+	if precision <= 0.07: return 2
+	return 1
+
 func complete_level():
 	game_over = true
-	current_score += current_level * 100
+	var current_area = current_shape.get_area()
+	var current_ratio = current_area / initial_area
+	var precision = abs(current_ratio - target_ratio)
+	var stars = calculate_stars(precision)
+	
+	var star_text = ""
+	for i in range(stars): star_text += "⭐"
+	level_label.text = star_text
+	level_label.modulate = Color.YELLOW
+	
+	current_score += stars * current_level * 100
 	score_label.text = str(current_score)
 	
 	# Success flash
@@ -135,7 +168,7 @@ func complete_level():
 	tween.finished.connect(flash.queue_free)
 	
 	current_level += 1
-	await get_tree().create_timer(0.5).timeout
+	await get_tree().create_timer(1.0).timeout
 	start_level()
 
 func fail_game(reason: String):

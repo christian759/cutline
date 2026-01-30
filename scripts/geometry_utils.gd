@@ -53,3 +53,31 @@ static func get_total_area(polygon: PackedVector2Array) -> float:
 		area += p1.x * p2.y - p2.x * p1.y
 		
 	return abs(area) * 0.5
+
+## Returns true if a segment between 'p1' and 'p2' intersects a circle at 'center' with 'radius'.
+static func segment_intersects_circle(p1: Vector2, p2: Vector2, center: Vector2, radius: float) -> bool:
+	var d = p2 - p1
+	var f = p1 - center
+	
+	var a = d.dot(d)
+	var b = 2.0 * f.dot(d)
+	var c = f.dot(f) - radius * radius
+	
+	var discriminant = b * b - 4.0 * a * c
+	if discriminant < 0:
+		return false
+	
+	discriminant = sqrt(discriminant)
+	var t1 = (-b - discriminant) / (2.0 * a)
+	var t2 = (-b + discriminant) / (2.0 * a)
+	
+	if t1 >= 0 and t1 <= 1:
+		return true
+	if t2 >= 0 and t2 <= 1:
+		return true
+		
+	return false
+
+## Returns true if a point is inside a polygon.
+static func is_point_in_polygon(point: Vector2, polygon: PackedVector2Array) -> bool:
+	return Geometry2D.is_point_in_polygon(point, polygon)

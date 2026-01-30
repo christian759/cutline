@@ -1,6 +1,6 @@
 extends Node2D
 
-const GeometryUtils = preload("res://scripts/geometry_utils.gd")
+# No need for explicit preload if class_name is used
 
 var velocity := Vector2.ZERO
 var rotation_speed := 0.0
@@ -10,6 +10,9 @@ var screen_size: Vector2
 @onready var line_2d: Line2D = $Line2D
 
 var current_polygon: PackedVector2Array
+var balls: Array[Node2D] = []
+
+enum CutResult {SUCCESS, MISS, HIT_BALL}
 
 func setup(poly: PackedVector2Array, vel: Vector2, rot: float):
 	current_polygon = poly
@@ -37,15 +40,19 @@ func _process(delta):
 	if position.y < -100: position.y = screen_size.y + 100
 	elif position.y > screen_size.y + 100: position.y = -100
 
-func apply_slice(line_start: Vector2, line_end: Vector2) -> bool:
-	# Convert world line to local coordinates
+func apply_slice(line_start: Vector2, line_end: Vector2) -> CutResult:
 	var local_start = to_local(line_start)
 	var local_end = to_local(line_end)
 	
+	# Check for ball collisions first (§5 & §6)
+	for ball in balls:
+		if GeometryUtils.segment_intersects_circle(local_start, local_end, ball.position, ball.radius):
+			return CutResult.HIT_BALL
+			
 	var fragments = GeometryUtils.slice_polygon(current_polygon, local_start, local_end)
 	
 	if fragments.size() < 2:
-		return false # No cut happened
+		return CutResult.MISS # No cut happened
 		
 	# Find the largest fragment
 	var largest_frag = fragments[0]
@@ -58,5 +65,26 @@ func apply_slice(line_start: Vector2, line_end: Vector2) -> bool:
 			largest_frag = fragments[i]
 			
 	current_polygon = largest_frag
+	
+	# Update all balls with the new boundary (§4)
+	for ball in balls:
+		ball.update_polygon(current_polygon)
+		
 	update_visuals()
-	return true
+	return CutResult.SUCCESS
+
+func add_ball(ball_scene: PackedScene, vel: Vector2, radius: float):
+	var ball = ball_scene.instantiate()
+	add_child(ball)
+	ball.setup(current_polygon, vel, radius)
+	# Start at a random point inside
+	ball.position = get_random_point_in_polygon()
+	balls.append(ball)
+
+func get_random_point_in_polygon() -> Vector2:
+	# Use the centroid of the polygon for a safe starting point
+	var center = Vector2.ZERO
+	if current_polygon.is_empty(): return center
+	for p in current_polygon:
+		center += p
+	return center / current_polygon.size()
