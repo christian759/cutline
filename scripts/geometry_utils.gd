@@ -42,4 +42,14 @@ static func slice_polygon(polygon: PackedVector2Array, line_start: Vector2, line
 	return result
 
 static func get_total_area(polygon: PackedVector2Array) -> float:
-	return abs(Geometry2D.get_polygon_area(polygon))
+	var area = 0.0
+	var n = polygon.size()
+	if n < 3:
+		return 0.0
+	
+	for i in range(n):
+		var p1 = polygon[i]
+		var p2 = polygon[(i + 1) % n]
+		area += p1.x * p2.y - p2.x * p1.y
+		
+	return abs(area) * 0.5

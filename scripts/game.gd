@@ -1,9 +1,12 @@
 extends Node2D
 
+const GeometryUtils = preload("res://scripts/geometry_utils.gd")
+
 @export var shape_scene: PackedScene
 @onready var shape_container = $ShapeContainer
 @onready var cut_line_visual = $CanvasLayer/CutLineVisual
 @onready var progress_bar = $CanvasLayer/HUD/ProgressBar
+@onready var target_marker = $CanvasLayer/HUD/ProgressBar/TargetMarker
 @onready var score_label = $CanvasLayer/HUD/ScoreLabel
 @onready var level_label = $CanvasLayer/HUD/LevelLabel
 
@@ -12,7 +15,8 @@ var is_dragging := false
 var drag_start := Vector2.ZERO
 
 var initial_area := 0.0
-var target_area_ratio := 0.6 # Reduce to 60%
+var target_ratio := 0.5 # Success threshold
+var fail_ratio := 0.45 # Too small threshold
 var current_level := 1
 var current_score := 0
 var game_over := false
@@ -25,34 +29,42 @@ func start_level():
 	for child in shape_container.get_children():
 		child.queue_free()
 	
+	game_over = false
+	
 	# Create new shape
 	current_shape = shape_scene.instantiate()
 	shape_container.add_child(current_shape)
 	
-	# Level scaling
-	var sides = clamp(3 + (current_level / 2), 3, 12)
-	var radius = 200.0
+	# Level scaling (Brutal)
+	var sides = clamp(3 + int(current_level / 2.0), 3, 10)
+	var radius = 220.0 - (current_level * 5.0)
+	radius = max(radius, 120.0)
+	
 	var poly = generate_random_polygon(sides, radius)
 	
-	var speed = 50.0 + (current_level * 10.0)
+	var speed = 60.0 + (current_level * 15.0)
 	var vel = Vector2(randf_range(-1, 1), randf_range(-1, 1)).normalized() * speed
-	var rot = randf_range(-0.5, 0.5) * (1.0 + current_level * 0.1)
+	var rot = randf_range(-0.6, 0.6) * (1.0 + current_level * 0.15)
 	
 	current_shape.position = get_viewport_rect().size / 2.0
 	current_shape.setup(poly, vel, rot)
 	
 	initial_area = current_shape.get_area()
-	target_area_ratio = clamp(0.6 - (current_level * 0.03), 0.2, 0.6)
+	
+	# Tighten tolerance as level increases
+	target_ratio = 0.5 - (current_level * 0.02)
+	target_ratio = max(target_ratio, 0.15)
+	fail_ratio = target_ratio * 0.85 # 15% margin for error
 	
 	update_hud()
 	level_label.text = "LEVEL " + str(current_level)
 
 func generate_random_polygon(sides: int, radius: float) -> PackedVector2Array:
 	var points = PackedVector2Array()
+	var angle_step = 360.0 / sides
 	for i in range(sides):
-		var angle = deg_to_rad(i * 360.0 / sides)
-		# Add some randomness to radii
-		var r = radius * randf_range(0.8, 1.2)
+		var angle = deg_to_rad(i * angle_step + randf_range(-angle_step * 0.2, angle_step * 0.2))
+		var r = radius * randf_range(0.7, 1.3)
 		points.append(Vector2(cos(angle), sin(angle)) * r)
 	return points
 
@@ -76,15 +88,13 @@ func _input(event):
 		cut_line_visual.points = PackedVector2Array([drag_start, event.position])
 
 func perform_cut(start: Vector2, end: Vector2):
-	if start.distance_to(end) < 20: return
+	if start.distance_to(end) < 40: return
 	
 	if current_shape and current_shape.apply_slice(start, end):
-		check_progress()
-		# Visual feedback (flash line)
 		spawn_cut_fx(start, end)
+		check_progress()
 	else:
-		# Near miss shake
-		shake_screen()
+		shake_screen(5.0) # Feedback for missing the shape
 
 func check_progress():
 	var current_area = current_shape.get_area()
@@ -92,58 +102,71 @@ func check_progress():
 	
 	update_hud()
 	
-	if current_ratio <= target_area_ratio:
-		# Success!
-		if current_ratio < target_area_ratio - 0.1:
-			# Too small - FAIL logic
-			fail_game("TOO SMALL!")
-		else:
-			# SUCCESS logic
-			complete_level()
-	elif current_ratio < 0.1: # Catch-all sanity fail
-		fail_game("TOO SMALL!")
+	if current_ratio < fail_ratio:
+		fail_game("OVERSHOT!")
+	elif current_ratio <= target_ratio:
+		complete_level()
 
 func update_hud():
-	var current_ratio = current_shape.get_area() / initial_area
-	# Progress bar: 1.0 is full size, Target is some value in between
-	# We want to reach Target. If < Target, we win.
-	progress_bar.value = current_ratio * 100.0
-	# Mark target on bar? (Using a simple shader or child node would be better)
+	var current_area = current_shape.get_area()
+	var current_ratio = current_area / initial_area
+	
+	# Current Progress
+	var tween = create_tween()
+	tween.tween_property(progress_bar, "value", current_ratio * 100.0, 0.2).set_trans(Tween.TRANS_CUBIC)
+	
+	# Target Marker position on bar
+	target_marker.anchor_left = target_ratio
+	target_marker.anchor_right = target_ratio
 	
 func complete_level():
+	game_over = true
 	current_score += current_level * 100
 	score_label.text = str(current_score)
-	current_level += 1
 	
-	# Transition effect
+	# Success flash
+	var flash = ColorRect.new()
+	flash.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	flash.color = Color(1, 1, 1, 0.4)
+	get_tree().root.add_child(flash)
+	
 	var tween = create_tween()
-	tween.tween_property(current_shape, "scale", Vector2.ZERO, 0.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
-	tween.finished.connect(start_level)
+	tween.tween_property(flash, "modulate:a", 0.0, 0.2)
+	tween.finished.connect(flash.queue_free)
+	
+	current_level += 1
+	await get_tree().create_timer(0.5).timeout
+	start_level()
 
 func fail_game(reason: String):
 	game_over = true
-	print("Game Over: " + reason)
+	level_label.text = reason
+	level_label.modulate = Color.RED
+	
+	shake_screen(15.0)
+	
 	# Collapse effect
 	var tween = create_tween()
-	tween.tween_property(current_shape, "modulate:a", 0.0, 0.5)
-	tween.parallel().tween_property(current_shape, "scale", Vector2(0.1, 0.1), 0.5)
+	tween.tween_property(current_shape, "scale", Vector2.ZERO, 0.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+	tween.parallel().tween_property(current_shape, "modulate", Color.RED, 0.4)
 	
-	await get_tree().create_timer(1.0).timeout
+	await get_tree().create_timer(1.5).timeout
 	get_tree().change_scene_to_file("res://scenes/home_screen.tscn")
 
-func shake_screen():
+func shake_screen(intensity: float):
 	var tween = create_tween()
-	for i in 4:
-		var offset = Vector2(randf_range(-5, 5), randf_range(-5, 5))
-		tween.tween_property(self, "position", offset, 0.05)
-	tween.tween_property(self, "position", Vector2.ZERO, 0.05)
+	for i in 6:
+		var offset = Vector2(randf_range(-intensity, intensity), randf_range(-intensity, intensity))
+		tween.tween_property(self, "position", offset, 0.04)
+	tween.tween_property(self, "position", Vector2.ZERO, 0.04)
 
 func spawn_cut_fx(start: Vector2, end: Vector2):
 	var line = Line2D.new()
 	add_child(line)
 	line.points = PackedVector2Array([start, end])
-	line.width = 4.0
-	line.default_color = Color.WHITE
+	line.width = 6.0
+	line.default_color = Color.BLACK
 	var tween = create_tween()
-	tween.tween_property(line, "modulate:a", 0.0, 0.3)
+	tween.tween_property(line, "width", 0.0, 0.4).set_trans(Tween.TRANS_EXPO)
+	tween.parallel().tween_property(line, "modulate:a", 0.0, 0.4)
 	tween.finished.connect(line.queue_free)

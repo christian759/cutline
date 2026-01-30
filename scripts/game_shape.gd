@@ -1,5 +1,7 @@
 extends Node2D
 
+const GeometryUtils = preload("res://scripts/geometry_utils.gd")
+
 var velocity := Vector2.ZERO
 var rotation_speed := 0.0
 var screen_size: Vector2

@@ -56,9 +56,9 @@ func _set_slow_mo(enabled: bool):
 	tween.tween_property(Engine, "time_scale", target_time_scale, 2.0).set_trans(Tween.TRANS_SINE)
 
 func _on_play_pressed():
-	# Transition to game (placeholder)
+	# Transition to game
 	print("Play pressed!")
-	# get_tree().change_scene_to_file("res://scenes/game.tscn")
+	get_tree().change_scene_to_file("res://scenes/game.tscn")
 
 func _on_settings_pressed():
 	get_tree().change_scene_to_file("res://scenes/settings_screen.tscn")
