@@ -1,6 +1,5 @@
 extends Control
 
-@onready var polygon_container = $PolygonContainer
 @onready var title_label = $UI/TitleLabel
 @onready var play_button = $UI/PlayButton
 
@@ -23,7 +22,3 @@ func _on_play_pressed():
 	tween.tween_property(play_button, "scale", Vector2(0.9, 0.9), 0.1)
 	tween.tween_property(play_button, "scale", Vector2(1.0, 1.0), 0.1)
 	print("Start Game Pressed")
-
-func _process(delta):
-	# Slowly rotate the polygon container
-	polygon_container.rotation += 0.2 * delta
