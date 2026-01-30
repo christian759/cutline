@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://be87n5k6m4l3r"]
+[gd_scene format=3 uid="uid://be87n5k6m4l3r"]
 
 [ext_resource type="Script" path="res://scripts/fail_popup.gd" id="1_script"]
 
