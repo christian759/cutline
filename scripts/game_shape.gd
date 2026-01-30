@@ -37,11 +37,21 @@ func _process(delta):
 	position += velocity * delta
 	rotation += rotation_speed * delta
 	
-	# Wrap logic
-	if position.x < -100: position.x = screen_size.x + 100
-	elif position.x > screen_size.x + 100: position.x = -100
-	if position.y < -100: position.y = screen_size.y + 100
-	elif position.y > screen_size.y + 100: position.y = -100
+	# Bounce logic (§8)
+	var margin = 150.0 # Approximate radius to keep mostly on screen
+	if position.x < margin:
+		position.x = margin
+		velocity.x = abs(velocity.x)
+	elif position.x > screen_size.x - margin:
+		position.x = screen_size.x - margin
+		velocity.x = - abs(velocity.x)
+		
+	if position.y < margin:
+		position.y = margin
+		velocity.y = abs(velocity.y)
+	elif position.y > screen_size.y - margin:
+		position.y = screen_size.y - margin
+		velocity.y = - abs(velocity.y)
 
 func apply_slice(line_start: Vector2, line_end: Vector2) -> CutResult:
 	var local_start = to_local(line_start)

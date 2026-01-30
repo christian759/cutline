@@ -22,6 +22,9 @@ var current_score := 0
 var game_over := false
 
 func _ready():
+	if get_tree().root.has_meta("selected_level"):
+		current_level = get_tree().root.get_meta("selected_level")
+		get_tree().root.remove_meta("selected_level")
 	start_level()
 
 func start_level():
@@ -164,6 +167,9 @@ func complete_level():
 	
 	current_score += stars * current_level * 100
 	score_label.text = str(current_score)
+	
+	# Save progress
+	Global.complete_level(current_level, stars)
 	
 	# Success flash
 	var flash = ColorRect.new()
