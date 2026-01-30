@@ -1,4 +1,4 @@
-extends CanvasLayer
+extends Control
 
 @onready var area_fill = $AreaBarBG/AreaFill
 @onready var target_marker = $AreaBarBG/TargetMarker
