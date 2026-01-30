@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/game.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://be87n5k6m4l3p" path="res://scenes/game_shape.tscn" id="2_shape_scene"]
+[ext_resource type="Script" path="res://scripts/hud.gd" id="hud_script"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_score"]
 font_size = 48
@@ -38,13 +39,16 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+script = ExtResource("hud_script")
 
 [node name="ScoreLabel" type="Label" parent="CanvasLayer/HUD"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
+offset_left = -11.5
 offset_top = 80.0
+offset_right = 11.5
 offset_bottom = 147.0
 grow_horizontal = 2
 text = "0"
@@ -56,37 +60,76 @@ layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
+offset_left = -46.5
 offset_top = 150.0
+offset_right = 46.5
 offset_bottom = 184.0
 grow_horizontal = 2
 text = "LEVEL 1"
 label_settings = SubResource("LabelSettings_level")
 horizontal_alignment = 1
 
-[node name="ProgressBar" type="ProgressBar" parent="CanvasLayer/HUD"]
-custom_minimum_size = Vector2(400, 10)
+[node name="AreaBarBG" type="ColorRect" parent="CanvasLayer/HUD"]
 layout_mode = 1
-anchors_preset = 7
+anchors_preset = 8
 anchor_left = 0.5
-anchor_top = 1.0
+anchor_top = 0.5
 anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -200.0
-offset_top = -100.0
-offset_right = 200.0
-offset_bottom = -90.0
+anchor_bottom = 0.5
+offset_left = -250.0
+offset_top = -540.0
+offset_right = 250.0
+offset_bottom = -530.0
 grow_horizontal = 2
-grow_vertical = 0
-theme_override_styles/background = null
-theme_override_styles/fill = null
-value = 100.0
-show_percentage = false
+grow_vertical = 2
+color = Color(0.878431, 0.878431, 0.878431, 1)
 
-[node name="TargetMarker" type="ColorRect" parent="CanvasLayer/HUD/ProgressBar"]
+[node name="AreaFill" type="ColorRect" parent="CanvasLayer/HUD/AreaBarBG"]
 layout_mode = 1
 anchors_preset = 9
 anchor_bottom = 1.0
-offset_left = 240.0
-offset_right = 244.0
+offset_right = 500.0
 grow_vertical = 2
-color = Color(0, 0, 0, 0.2)
+color = Color(0, 0, 0, 1)
+
+[node name="TargetMarker" type="ColorRect" parent="CanvasLayer/HUD/AreaBarBG"]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_left = 200.0
+offset_right = 204.0
+grow_vertical = 2
+color = Color(1, 0, 0, 1)
+
+[node name="CurrentAreaLabel" type="Label" parent="CanvasLayer/HUD"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -250.0
+offset_top = -525.0
+offset_right = -100.0
+offset_bottom = -502.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "CURRENT: 100%"
+
+[node name="TargetAreaLabel" type="Label" parent="CanvasLayer/HUD"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 100.0
+offset_top = -525.0
+offset_right = 250.0
+offset_bottom = -502.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "TARGET: 50%"
+horizontal_alignment = 2
