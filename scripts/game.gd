@@ -6,8 +6,7 @@ extends Node2D
 @export var ball_scene: PackedScene
 @onready var shape_container = $ShapeContainer
 @onready var cut_line_visual = $CanvasLayer/CutLineVisual
-@onready var progress_bar = $CanvasLayer/HUD/ProgressBar
-@onready var target_marker = $CanvasLayer/HUD/ProgressBar/TargetMarker
+@onready var hud = $CanvasLayer/HUD
 @onready var score_label = $CanvasLayer/HUD/ScoreLabel
 @onready var level_label = $CanvasLayer/HUD/LevelLabel
 
@@ -57,7 +56,8 @@ func start_level():
 	target_ratio = max(target_ratio, 0.15)
 	fail_ratio = target_ratio * 0.85 # 15% margin for error
 	
-	update_hud()
+	hud.set_target(target_ratio)
+	hud.update_current(1.0)
 	level_label.text = "LEVEL " + str(current_level)
 	level_label.modulate = Color.WHITE
 	
@@ -113,7 +113,14 @@ func check_progress():
 	var current_area = current_shape.get_area()
 	var current_ratio = current_area / initial_area
 	
+	var previous_ratio = hud.current_ratio
+	
 	update_hud()
+	
+	# Crossing Target Feedback (§6)
+	if previous_ratio > target_ratio and current_ratio <= target_ratio:
+		hud.flash_marker()
+		_apply_micro_slow_mo()
 	
 	if current_ratio < fail_ratio:
 		fail_game("OVERSHOT!")
@@ -123,19 +130,20 @@ func check_progress():
 func update_hud():
 	var current_area = current_shape.get_area()
 	var current_ratio = current_area / initial_area
+	hud.update_current(current_ratio)
 	
-	# HUD visual intensity (§1)
+	# Shape outline focus cue (§6)
 	var diff = abs(current_ratio - target_ratio)
 	if diff < 0.05:
-		progress_bar.modulate = Color.ORANGE
-	elif diff < 0.02:
-		progress_bar.modulate = Color.RED
+		current_shape.set_outline_thickness(6.0)
 	else:
-		progress_bar.modulate = Color.WHITE
-		
-	# Target Marker position on bar
-	target_marker.anchor_left = target_ratio
-	target_marker.anchor_right = target_ratio
+		current_shape.set_outline_thickness(2.0)
+
+func _apply_micro_slow_mo():
+	var original_timescale = Engine.time_scale
+	Engine.time_scale = 0.2
+	await get_tree().create_timer(0.15, true, false, true).timeout
+	Engine.time_scale = original_timescale
 	
 func calculate_stars(precision: float) -> int:
 	if precision <= 0.03: return 3

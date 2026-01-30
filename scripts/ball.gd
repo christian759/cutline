@@ -30,7 +30,7 @@ func _process(delta):
 		velocity = - velocity.rotated(randf_range(-0.5, 0.5))
 	else:
 		position = next_pos
-1
+
 func update_polygon(poly: PackedVector2Array):
 	parent_polygon = poly
 	# If we somehow end up outside after a cut, snap to center or nearest point

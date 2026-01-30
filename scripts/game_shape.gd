@@ -30,6 +30,9 @@ func update_visuals():
 func get_area() -> float:
 	return GeometryUtils.get_total_area(current_polygon)
 
+func set_outline_thickness(thickness: float):
+	line_2d.width = thickness
+
 func _process(delta):
 	position += velocity * delta
 	rotation += rotation_speed * delta
