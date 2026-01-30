@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://be87n5k6m4l3p"]
+
+[ext_resource type="Script" path="res://scripts/game_shape.gd" id="1_script"]
+
+[node name="GameShape" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+color = Color(0.956863, 0.956863, 0.956863, 1)
+
+[node name="Line2D" type="Line2D" parent="."]
+width = 3.0
+default_color = Color(0, 0, 0, 1)
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
+antialiased = true
