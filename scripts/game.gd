@@ -110,7 +110,7 @@ func perform_cut(start: Vector2, end: Vector2):
 	var result = current_shape.apply_slice(start, end)
 	
 	if result == current_shape.CutResult.SUCCESS:
-		sfx_slice.play()
+		AudioManager.play_slice()
 		spawn_cut_fx(start, end)
 		check_progress()
 	elif result == current_shape.CutResult.HIT_BALL:
@@ -193,7 +193,7 @@ func complete_level():
 
 func fail_game(reason: String):
 	game_over = true
-	sfx_fail.play()
+	AudioManager.play_fail()
 	
 	shake_screen(15.0)
 	
